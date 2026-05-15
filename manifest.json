@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "PII Redactor",
+  "version": "1.0.0",
+  "description": "Redacts PII from prompts before submission via a configurable API",
+  "permissions": ["scripting", "storage"],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://chatgpt.com/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "src/site-adapters.js",
+        "src/redactor-service.js",
+        "src/content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "PII Redactor",
+    "default_popup": "popup.html"
+  }
+}
