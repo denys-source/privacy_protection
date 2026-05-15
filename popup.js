@@ -115,4 +115,37 @@ document.addEventListener('DOMContentLoaded', () => {
   scamAddBtn.addEventListener('click', addSite);
   scamSiteInput.addEventListener('keydown', e => { if (e.key === 'Enter') addSite(); });
   loadSites();
+
+  const qrApiUrlInput = document.getElementById('qrApiUrl');
+  const qrSaveBtn = document.getElementById('qrSaveBtn');
+  const qrStatus = document.getElementById('qrStatus');
+  const scanQrBtn = document.getElementById('scanQrBtn');
+  const scanQrStatus = document.getElementById('scanQrStatus');
+
+  chrome.storage.local.get({ qrApiUrl: QrService.DEFAULT_URL }, ({ qrApiUrl }) => {
+    qrApiUrlInput.value = qrApiUrl;
+  });
+
+  qrSaveBtn.addEventListener('click', () => {
+    const url = qrApiUrlInput.value.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      qrStatus.textContent = 'URL must start with http:// or https://';
+      qrStatus.className = 'error';
+      return;
+    }
+    chrome.storage.local.set({ qrApiUrl: url }, () => {
+      qrStatus.textContent = 'Saved';
+      qrStatus.className = '';
+      setTimeout(() => { qrStatus.textContent = ''; }, 2000);
+    });
+  });
+
+  scanQrBtn.addEventListener('click', () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+      chrome.tabs.sendMessage(tab.id, { action: 'SCAN_QR_CODES' }, () => {
+        scanQrStatus.textContent = 'Scanning…';
+        setTimeout(() => { scanQrStatus.textContent = ''; }, 2000);
+      });
+    });
+  });
 });

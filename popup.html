@@ -83,6 +83,16 @@
     <button class="primary" id="scamSaveBtn">Save</button>
     <div id="scamStatus" class="status-msg"></div>
 
+    <div class="section-title">QR Scanner</div>
+    <div class="field">
+      <label for="qrApiUrl">API URL</label>
+      <input type="text" id="qrApiUrl" placeholder="http://localhost:8080/api/v1/analyze-qr">
+    </div>
+    <button class="primary" id="qrSaveBtn">Save</button>
+    <div id="qrStatus" class="status-msg"></div>
+    <button class="primary" id="scanQrBtn" style="margin-top:8px">Scan QR Codes</button>
+    <div id="scanQrStatus" class="status-msg"></div>
+
     <div class="section-title">Ignored Sites</div>
     <div class="input-row">
       <input type="text" id="scamSiteInput" placeholder="example.com">
@@ -94,6 +104,7 @@
 
   <script src="src/redactor-service.js"></script>
   <script src="src/scam-detection-service.js"></script>
+  <script src="src/qr-service.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
