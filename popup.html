@@ -4,18 +4,23 @@
   <meta charset="utf-8">
   <style>
     * { box-sizing: border-box; }
-    body { width: 300px; font-family: system-ui, -apple-system, sans-serif; padding: 16px; margin: 0; color: #111; }
-    h2 { margin: 0 0 16px; font-size: 15px; font-weight: 600; }
+    body { width: 320px; font-family: system-ui, -apple-system, sans-serif; padding: 16px; margin: 0; color: #111; }
+    h2 { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+
+    .tabs { display: flex; border-bottom: 1px solid #e5e7eb; margin: 0 -16px 16px; }
+    .tab-btn { flex: 1; padding: 10px; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-size: 13px; font-weight: 500; color: #6b7280; }
+    .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
     .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .row label { font-size: 13px; }
     .field { margin-bottom: 14px; }
     .field > label { display: block; font-size: 13px; margin-bottom: 4px; }
     input[type="text"] { width: 100%; padding: 6px 8px; font-size: 12px; border: 1px solid #d1d5db; border-radius: 5px; outline: none; }
     input[type="text"]:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
-    button { width: 100%; padding: 8px; background: #2563eb; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; }
-    button:hover { background: #1d4ed8; }
-    #status { font-size: 12px; color: #16a34a; text-align: center; margin-top: 8px; min-height: 16px; }
-    #status.error { color: #dc2626; }
+    button.primary { width: 100%; padding: 8px; background: #2563eb; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    button.primary:hover { background: #1d4ed8; }
 
     .toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
     .toggle input { opacity: 0; width: 0; height: 0; }
@@ -23,24 +28,83 @@
     .slider::before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
     input:checked + .slider { background: #2563eb; }
     input:checked + .slider::before { transform: translateX(18px); }
+
+    .status-msg { font-size: 12px; color: #16a34a; text-align: center; margin-top: 8px; min-height: 16px; }
+    .status-msg.error { color: #dc2626; }
+
+    .section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #9ca3af; margin: 16px 0 8px; }
+    .input-row { display: flex; gap: 6px; margin-bottom: 4px; }
+    .input-row input { flex: 1; }
+    .input-row button { width: auto; padding: 7px 12px; background: #2563eb; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 500; }
+    .input-row button:hover { background: #1d4ed8; }
+    .site-list { list-style: none; padding: 0; margin: 8px 0 0; max-height: 130px; overflow-y: auto; }
+    .site-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #e5e7eb; border-radius: 5px; font-size: 12px; }
+    .site-remove { color: #dc2626; cursor: pointer; background: none; border: none; font-size: 14px; line-height: 1; padding: 0 2px; }
+    .empty-sites { font-size: 12px; color: #9ca3af; margin-top: 6px; }
+    .field-error { font-size: 12px; color: #dc2626; min-height: 14px; margin-top: 2px; }
   </style>
 </head>
 <body>
-  <h2>PII Redactor</h2>
-  <div class="row">
-    <label for="enabledToggle">Enable redaction</label>
-    <label class="toggle">
-      <input type="checkbox" id="enabledToggle" checked>
-      <span class="slider"></span>
-    </label>
+  <h2>Privacy Assistant</h2>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-target="pii-panel">PII Redactor</button>
+    <button class="tab-btn" data-target="scam-panel">ScamLens</button>
   </div>
-  <div class="field">
-    <label for="apiUrl">API URL</label>
-    <input type="text" id="apiUrl" placeholder="http://localhost:8080/api/v1/redact/">
+
+  <div id="pii-panel" class="tab-panel active">
+    <div class="row">
+      <label for="enabledToggle">Enable redaction</label>
+      <label class="toggle">
+        <input type="checkbox" id="enabledToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="field">
+      <label for="apiUrl">API URL</label>
+      <input type="text" id="apiUrl" placeholder="http://localhost:8080/api/v1/redact/">
+    </div>
+    <button class="primary" id="saveBtn">Save</button>
+    <div id="status" class="status-msg"></div>
   </div>
-  <button id="saveBtn">Save</button>
-  <div id="status"></div>
+
+  <div id="scam-panel" class="tab-panel">
+    <div class="row">
+      <label for="scamEnabledToggle">Enable ScamLens</label>
+      <label class="toggle">
+        <input type="checkbox" id="scamEnabledToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="field">
+      <label for="scamApiUrl">API URL</label>
+      <input type="text" id="scamApiUrl" placeholder="http://localhost:8080/api/v1/analyze">
+    </div>
+    <button class="primary" id="scamSaveBtn">Save</button>
+    <div id="scamStatus" class="status-msg"></div>
+
+    <div class="section-title">QR Scanner</div>
+    <div class="field">
+      <label for="qrApiUrl">API URL</label>
+      <input type="text" id="qrApiUrl" placeholder="http://localhost:8080/api/v1/analyze-qr">
+    </div>
+    <button class="primary" id="qrSaveBtn">Save</button>
+    <div id="qrStatus" class="status-msg"></div>
+    <button class="primary" id="scanQrBtn" style="margin-top:8px">Scan QR Codes</button>
+    <div id="scanQrStatus" class="status-msg"></div>
+
+    <div class="section-title">Ignored Sites</div>
+    <div class="input-row">
+      <input type="text" id="scamSiteInput" placeholder="example.com">
+      <button id="scamAddBtn">Add</button>
+    </div>
+    <div id="scamError" class="field-error"></div>
+    <ul id="scamSiteList" class="site-list"></ul>
+  </div>
+
   <script src="src/redactor-service.js"></script>
+  <script src="src/scam-detection-service.js"></script>
+  <script src="src/qr-service.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

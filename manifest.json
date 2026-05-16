@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "PII Redactor",
-  "version": "1.0.0",
-  "description": "Redacts PII from prompts before submission via a configurable API",
-  "permissions": ["scripting", "storage"],
+  "name": "Privacy Assistant",
+  "version": "1.1.0",
+  "description": "PII redaction for ChatGPT and scam detection for all websites",
+  "permissions": ["scripting", "storage", "tabs"],
   "host_permissions": [
     "https://chat.openai.com/*",
     "https://chatgpt.com/*",
-    "http://localhost/*"
+    "http://localhost/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
@@ -24,10 +25,25 @@
         "src/content.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "exclude_matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "jsQR.js",
+        "src/qr-service.js",
+        "src/scam-detection-service.js",
+        "src/scam-content.js"
+      ],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
     }
   ],
   "action": {
-    "default_title": "PII Redactor",
+    "default_title": "Privacy Assistant",
     "default_popup": "popup.html"
   }
 }
